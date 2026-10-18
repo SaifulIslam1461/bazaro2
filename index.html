@@ -43,7 +43,7 @@
             
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-medium mb-1">Supabase URL (অনলাইন সিঙ্কের জন্য)</label>
+                    <label class="block text-xs font-medium mb-1">Supabase URL (ঐচ্ছিক)</label>
                     <input type="text" id="sbUrl" placeholder="https://xxx.supabase.co" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent text-xs outline-none">
                 </div>
                 <div>
@@ -55,7 +55,7 @@
                 </button>
                 <div class="text-center pt-2">
                     <button type="button" onclick="bypassLogin()" class="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline">
-                        ⚡ অফলাইন/লোকাল মোডে সরাসরি প্রবেশ করুন (অল্প নেটওয়ার্কে সেরা)
+                        ⚡ অফলাইন/লোকাল মোডে সরাসরি প্রবেশ করুন
                     </button>
                 </div>
             </form>
@@ -74,7 +74,8 @@
                     <span class="font-bold text-sm">ব্যাচেলর হাউস</span>
                 </div>
 
-                <nav class="hidden md:flex space-x-1 overflow-x-auto py-1">
+                <!-- Desktop Nav Tabs -->
+                <nav class="hidden md:flex space-x-1">
                     <button onclick="switchTab('dashboard')" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-brand-50 dark:bg-brand-900/40 text-brand-600" data-target="dashboard">ড্যাশবোর্ড</button>
                     <button onclick="switchTab('rooms')" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300" data-target="rooms">রুমসমূহ</button>
                     <button onclick="switchTab('members')" class="nav-btn px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300" data-target="members">সদস্যবৃন্দ</button>
@@ -87,9 +88,32 @@
                 <div class="flex items-center space-x-2">
                     <button onclick="toggleDarkMode()" class="p-2 text-slate-600 dark:text-slate-300 text-xs"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
                     <button onclick="handleLogout()" class="p-2 text-red-500 text-xs" title="লগআউট"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    <!-- Mobile Menu Button (3 Lines) -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-600 dark:text-slate-300 text-sm">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
                 </div>
             </div>
         </header>
+
+        <!-- MOBILE SIDEBAR / DRAWER MENU -->
+        <div id="mobileMenu" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden md:hidden">
+            <div class="absolute right-0 top-0 bottom-0 w-64 bg-white dark:bg-slate-800 shadow-xl p-4 flex flex-col space-y-3">
+                <div class="flex justify-between items-center border-b pb-3 dark:border-slate-700">
+                    <span class="font-bold text-sm">মেনু সমূহ</span>
+                    <button onclick="toggleMobileMenu()" class="p-1 text-slate-500"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
+                <div class="flex flex-col space-y-1">
+                    <button onclick="switchTabMobile('dashboard')" class="mobile-nav-btn text-left px-3 py-2 rounded-lg text-xs font-medium bg-brand-50 text-brand-600" data-target="dashboard">ড্যাশবোর্ড</button>
+                    <button onclick="switchTabMobile('rooms')" class="mobile-nav-btn text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300" data-target="rooms">রুমসমূহ</button>
+                    <button onclick="switchTabMobile('members')" class="mobile-nav-btn text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300" data-target="members">সদস্যবৃন্দ</button>
+                    <button onclick="switchTabMobile('payments')" class="mobile-nav-btn text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300" data-target="payments">ভাড়া ও পেমেন্ট</button>
+                    <button onclick="switchTabMobile('expenses')" class="mobile-nav-btn text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300" data-target="expenses">মালিকের খরচ</button>
+                    <button onclick="switchTabMobile('reports')" class="mobile-nav-btn text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300" data-target="reports">রিপোর্ট</button>
+                    <button onclick="switchTabMobile('settings')" class="mobile-nav-btn text-left px-3 py-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-300" data-target="settings">সেটিংস</button>
+                </div>
+            </div>
+        </div>
 
         <!-- CONTENT AREA -->
         <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-4 space-y-4">
@@ -365,15 +389,9 @@
             document.getElementById('loginScreen').classList.remove('hidden');
         }
 
-        function initApp() {
-            renderDashboard();
-            renderRooms();
-            renderMembers();
-            renderPayments();
-            renderExpenses();
-            renderReports();
-            loadSettings();
-            populateSelects();
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
         }
 
         function switchTab(tabId) {
@@ -384,6 +402,20 @@
                 btn.classList.remove('bg-brand-50', 'dark:bg-brand-900/40', 'text-brand-600');
                 if(btn.dataset.target === tabId) {
                     btn.classList.add('bg-brand-50', 'dark:bg-brand-900/40', 'text-brand-600');
+                }
+            });
+        }
+
+        function switchTabMobile(tabId) {
+            switchTab(tabId);
+            toggleMobileMenu(); // Close mobile menu after selection
+            
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-50', 'text-brand-600');
+                btn.classList.add('text-slate-600', 'dark:text-slate-300');
+                if(btn.dataset.target === tabId) {
+                    btn.classList.add('bg-brand-50', 'text-brand-600');
+                    btn.classList.remove('text-slate-600', 'dark:text-slate-300');
                 }
             });
         }
@@ -568,6 +600,17 @@
 
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
+        }
+
+        function initApp() {
+            renderDashboard();
+            renderRooms();
+            renderMembers();
+            renderPayments();
+            renderExpenses();
+            renderReports();
+            loadSettings();
+            populateSelects();
         }
     </script>
 </body>
